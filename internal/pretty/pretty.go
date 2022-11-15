@@ -24,10 +24,10 @@ import (
 	"encoding/json"
 	"fmt"
 
-	"github.com/golang/protobuf/jsonpb"
-	protov1 "github.com/golang/protobuf/proto"
 	"google.golang.org/protobuf/encoding/protojson"
 	protov2 "google.golang.org/protobuf/proto"
+	"google.golang.org/protobuf/protocompat"
+	protov1 "google.golang.org/protobuf/runtime/protoiface"
 )
 
 const jsonIndent = "  "
@@ -37,16 +37,16 @@ const jsonIndent = "  "
 // If marshal fails, it falls back to fmt.Sprintf("%+v").
 func ToJSON(e interface{}) string {
 	switch ee := e.(type) {
-	case protov1.Message:
-		mm := jsonpb.Marshaler{Indent: jsonIndent}
-		ret, err := mm.MarshalToString(ee)
+	case protov1.MessageV1:
+		mm := protojson.MarshalOptions{Indent: jsonIndent}
+		ret, err := mm.Marshal(protocompat.MessageV2(ee))
 		if err != nil {
 			// This may fail for proto.Anys, e.g. for xDS v2, LDS, the v2
 			// messages are not imported, and this will fail because the message
 			// is not found.
 			return fmt.Sprintf("%+v", ee)
 		}
-		return ret
+		return string(ret)
 	case protov2.Message:
 		mm := protojson.MarshalOptions{
 			Multiline: true,

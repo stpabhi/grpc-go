@@ -26,3 +26,5 @@ require (
 	golang.org/x/xerrors v0.0.0-20200804184101-5ec99f83aff1 // indirect
 	google.golang.org/appengine v1.4.0 // indirect
 )
+
+replace google.golang.org/protobuf => github.com/stpabhi/protobuf-go v0.0.0-20221114191234-9e26988e5141

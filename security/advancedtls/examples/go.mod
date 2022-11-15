@@ -13,3 +13,5 @@ replace google.golang.org/grpc => ../../..
 replace google.golang.org/grpc/examples => ../../../examples
 
 replace google.golang.org/grpc/security/advancedtls => ../
+
+replace google.golang.org/protobuf => github.com/stpabhi/protobuf-go v0.0.0-20221114191234-9e26988e5141

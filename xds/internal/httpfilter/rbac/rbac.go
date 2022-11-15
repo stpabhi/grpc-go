@@ -25,13 +25,12 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/golang/protobuf/proto"
-	"github.com/golang/protobuf/ptypes"
 	"google.golang.org/grpc/internal"
 	"google.golang.org/grpc/internal/envconfig"
 	"google.golang.org/grpc/internal/resolver"
 	"google.golang.org/grpc/internal/xds/rbac"
 	"google.golang.org/grpc/xds/internal/httpfilter"
+	"google.golang.org/protobuf/runtime/protoiface"
 	"google.golang.org/protobuf/types/known/anypb"
 
 	v3rbacpb "github.com/envoyproxy/go-control-plane/envoy/config/rbac/v3"
@@ -138,7 +137,7 @@ func parseConfig(rbacCfg *rpb.RBAC) (httpfilter.FilterConfig, error) {
 	return config{chainEngine: ce}, nil
 }
 
-func (builder) ParseFilterConfig(cfg proto.Message) (httpfilter.FilterConfig, error) {
+func (builder) ParseFilterConfig(cfg protoiface.MessageV1) (httpfilter.FilterConfig, error) {
 	if cfg == nil {
 		return nil, fmt.Errorf("rbac: nil configuration message provided")
 	}
@@ -147,13 +146,13 @@ func (builder) ParseFilterConfig(cfg proto.Message) (httpfilter.FilterConfig, er
 		return nil, fmt.Errorf("rbac: error parsing config %v: unknown type %T", cfg, cfg)
 	}
 	msg := new(rpb.RBAC)
-	if err := ptypes.UnmarshalAny(any, msg); err != nil {
+	if err := any.UnmarshalTo(msg); err != nil {
 		return nil, fmt.Errorf("rbac: error parsing config %v: %v", cfg, err)
 	}
 	return parseConfig(msg)
 }
 
-func (builder) ParseFilterConfigOverride(override proto.Message) (httpfilter.FilterConfig, error) {
+func (builder) ParseFilterConfigOverride(override protoiface.MessageV1) (httpfilter.FilterConfig, error) {
 	if override == nil {
 		return nil, fmt.Errorf("rbac: nil configuration message provided")
 	}
@@ -162,7 +161,7 @@ func (builder) ParseFilterConfigOverride(override proto.Message) (httpfilter.Fil
 		return nil, fmt.Errorf("rbac: error parsing override config %v: unknown type %T", override, override)
 	}
 	msg := new(rpb.RBACPerRoute)
-	if err := ptypes.UnmarshalAny(any, msg); err != nil {
+	if err := any.UnmarshalTo(msg); err != nil {
 		return nil, fmt.Errorf("rbac: error parsing override config %v: %v", override, err)
 	}
 	return parseConfig(msg.Rbac)

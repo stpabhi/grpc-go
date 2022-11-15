@@ -23,7 +23,6 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/golang/protobuf/proto"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/internal/grpclog"
@@ -31,6 +30,7 @@ import (
 	controllerversion "google.golang.org/grpc/xds/internal/xdsclient/controller/version"
 	"google.golang.org/grpc/xds/internal/xdsclient/xdsresource"
 	xdsresourceversion "google.golang.org/grpc/xds/internal/xdsclient/xdsresource/version"
+	"google.golang.org/protobuf/runtime/protoiface"
 	"google.golang.org/protobuf/types/known/anypb"
 
 	v2xdspb "github.com/envoyproxy/go-control-plane/envoy/api/v2"
@@ -109,7 +109,7 @@ func (v2c *client) SendRequest(s grpc.ClientStream, resourceNames []string, rTyp
 
 // RecvResponse blocks on the receipt of one response message on the provided
 // stream.
-func (v2c *client) RecvResponse(s grpc.ClientStream) (proto.Message, error) {
+func (v2c *client) RecvResponse(s grpc.ClientStream) (protoiface.MessageV1, error) {
 	stream, ok := s.(adsStream)
 	if !ok {
 		return nil, fmt.Errorf("xds: Attempt to receive response on unsupported stream type: %T", s)
@@ -124,7 +124,7 @@ func (v2c *client) RecvResponse(s grpc.ClientStream) (proto.Message, error) {
 	return resp, nil
 }
 
-func (v2c *client) ParseResponse(r proto.Message) (xdsresource.ResourceType, []*anypb.Any, string, string, error) {
+func (v2c *client) ParseResponse(r protoiface.MessageV1) (xdsresource.ResourceType, []*anypb.Any, string, string, error) {
 	rType := xdsresource.UnknownResource
 	resp, ok := r.(*v2xdspb.DiscoveryResponse)
 	if !ok {

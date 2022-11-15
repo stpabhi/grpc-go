@@ -21,8 +21,8 @@
 package httpfilter
 
 import (
-	"github.com/golang/protobuf/proto"
 	iresolver "google.golang.org/grpc/internal/resolver"
+	"google.golang.org/protobuf/runtime/protoiface"
 )
 
 // FilterConfig represents an opaque data structure holding configuration for a
@@ -44,13 +44,13 @@ type Filter interface {
 	// udpa.type.v1.TypedStruct, or an xds.type.v3.TypedStruct for filters that
 	// do not accept a custom type. The resulting FilterConfig will later be
 	// passed to Build.
-	ParseFilterConfig(proto.Message) (FilterConfig, error)
+	ParseFilterConfig(protoiface.MessageV1) (FilterConfig, error)
 	// ParseFilterConfigOverride parses the provided override configuration
 	// proto.Message from the RDS override configuration of this filter.  This
 	// may be an anypb.Any, a udpa.type.v1.TypedStruct, or an
 	// xds.type.v3.TypedStruct for filters that do not accept a custom type.
 	// The resulting FilterConfig will later be passed to Build.
-	ParseFilterConfigOverride(proto.Message) (FilterConfig, error)
+	ParseFilterConfigOverride(protoiface.MessageV1) (FilterConfig, error)
 	// IsTerminal returns whether this Filter is terminal or not (i.e. it must
 	// be last filter in the filter chain).
 	IsTerminal() bool

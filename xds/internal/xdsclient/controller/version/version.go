@@ -22,12 +22,12 @@ import (
 	"context"
 	"time"
 
-	"github.com/golang/protobuf/proto"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/internal/grpclog"
 	"google.golang.org/grpc/xds/internal/xdsclient/load"
 	"google.golang.org/grpc/xds/internal/xdsclient/xdsresource"
 	"google.golang.org/grpc/xds/internal/xdsclient/xdsresource/version"
+	"google.golang.org/protobuf/runtime/protoiface"
 	"google.golang.org/protobuf/types/known/anypb"
 )
 
@@ -58,7 +58,7 @@ func GetAPIClientBuilder(version version.TransportAPI) func(opts BuildOptions) (
 type BuildOptions struct {
 	// NodeProto contains the Node proto to be used in xDS requests. The actual
 	// type depends on the transport protocol version used.
-	NodeProto proto.Message
+	NodeProto protoiface.MessageV1
 	// // Backoff returns the amount of time to backoff before retrying broken
 	// // streams.
 	// Backoff func(int) time.Duration
@@ -96,10 +96,10 @@ type VersionedClient interface {
 	SendRequest(s grpc.ClientStream, resourceNames []string, rType xdsresource.ResourceType, version, nonce, errMsg string) error
 	// RecvResponse uses the provided stream to receive a response specific to
 	// the underlying transport protocol version.
-	RecvResponse(s grpc.ClientStream) (proto.Message, error)
+	RecvResponse(s grpc.ClientStream) (protoiface.MessageV1, error)
 	// ParseResponse type asserts message to the versioned response, and
 	// retrieves the fields.
-	ParseResponse(r proto.Message) (xdsresource.ResourceType, []*anypb.Any, string, string, error)
+	ParseResponse(r protoiface.MessageV1) (xdsresource.ResourceType, []*anypb.Any, string, string, error)
 
 	// The following are LRS methods.
 

@@ -35,6 +35,7 @@ import (
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/internal/grpctest"
 	"google.golang.org/grpc/internal/status"
+	"google.golang.org/protobuf/runtime/protoimpl"
 )
 
 type s struct {
@@ -315,7 +316,7 @@ func (s) TestStatus_ErrorDetails_Fail(t *testing.T) {
 				},
 			}),
 			[]interface{}{
-				errors.New(`message type url "" is invalid`),
+				protoimpl.X.NewError("invalid empty type URL"),
 				&epb.ResourceInfo{
 					ResourceType: "book",
 					ResourceName: "projects/1234/books/5678",

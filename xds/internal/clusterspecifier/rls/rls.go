@@ -23,14 +23,13 @@ import (
 	"encoding/json"
 	"fmt"
 
-	"github.com/golang/protobuf/proto"
-	"github.com/golang/protobuf/ptypes"
 	"google.golang.org/grpc/balancer"
 	"google.golang.org/grpc/internal"
 	"google.golang.org/grpc/internal/envconfig"
 	rlspb "google.golang.org/grpc/internal/proto/grpc_lookup_v1"
 	"google.golang.org/grpc/xds/internal/clusterspecifier"
 	"google.golang.org/protobuf/encoding/protojson"
+	"google.golang.org/protobuf/runtime/protoiface"
 	"google.golang.org/protobuf/types/known/anypb"
 )
 
@@ -65,7 +64,7 @@ type lbConfigJSON struct {
 	ChildPolicyConfigTargetFieldName string                       `json:"childPolicyConfigTargetFieldName"`
 }
 
-func (rls) ParseClusterSpecifierConfig(cfg proto.Message) (clusterspecifier.BalancerConfig, error) {
+func (rls) ParseClusterSpecifierConfig(cfg protoiface.MessageV1) (clusterspecifier.BalancerConfig, error) {
 	if cfg == nil {
 		return nil, fmt.Errorf("rls_csp: nil configuration message provided")
 	}
@@ -75,7 +74,7 @@ func (rls) ParseClusterSpecifierConfig(cfg proto.Message) (clusterspecifier.Bala
 	}
 	rlcs := new(rlspb.RouteLookupClusterSpecifier)
 
-	if err := ptypes.UnmarshalAny(any, rlcs); err != nil {
+	if err := any.UnmarshalTo(rlcs); err != nil {
 		return nil, fmt.Errorf("rls_csp: error parsing config %v: %v", cfg, err)
 	}
 	rlcJSON, err := protojson.Marshal(rlcs.GetRouteLookupConfig())

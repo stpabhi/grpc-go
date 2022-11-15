@@ -20,17 +20,17 @@ package testutils
 import (
 	"fmt"
 
-	"github.com/golang/protobuf/proto"
-	"github.com/golang/protobuf/ptypes"
+	"google.golang.org/protobuf/protocompat"
+	"google.golang.org/protobuf/runtime/protoiface"
 	"google.golang.org/protobuf/types/known/anypb"
 )
 
 // MarshalAny is a convenience function to marshal protobuf messages into any
 // protos. It will panic if the marshaling fails.
-func MarshalAny(m proto.Message) *anypb.Any {
-	a, err := ptypes.MarshalAny(m)
+func MarshalAny(m protoiface.MessageV1) *anypb.Any {
+	a, err := anypb.New(protocompat.MessageV2(m))
 	if err != nil {
-		panic(fmt.Sprintf("ptypes.MarshalAny(%+v) failed: %v", m, err))
+		panic(fmt.Sprintf("anypb.New(%+v) failed: %v", m, err))
 	}
 	return a
 }

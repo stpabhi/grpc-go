@@ -29,12 +29,6 @@ import (
 	"net"
 	"time"
 
-	"github.com/golang/protobuf/proto"
-	"google.golang.org/grpc"
-	"google.golang.org/grpc/codes"
-	"google.golang.org/grpc/internal/testutils"
-	"google.golang.org/grpc/status"
-
 	v2discoverypb "github.com/envoyproxy/go-control-plane/envoy/api/v2"
 	v2discoverygrpc "github.com/envoyproxy/go-control-plane/envoy/service/discovery/v2"
 	v3discoverygrpc "github.com/envoyproxy/go-control-plane/envoy/service/discovery/v3"
@@ -43,6 +37,11 @@ import (
 	v2lrspb "github.com/envoyproxy/go-control-plane/envoy/service/load_stats/v2"
 	v3lrsgrpc "github.com/envoyproxy/go-control-plane/envoy/service/load_stats/v3"
 	v3lrspb "github.com/envoyproxy/go-control-plane/envoy/service/load_stats/v3"
+	"google.golang.org/grpc"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/internal/testutils"
+	"google.golang.org/grpc/status"
+	"google.golang.org/protobuf/runtime/protoiface"
 )
 
 const (
@@ -55,14 +54,14 @@ const (
 // Request wraps the request protobuf (xds/LRS) and error received by the
 // Server in a call to stream.Recv().
 type Request struct {
-	Req proto.Message
+	Req protoiface.MessageV1
 	Err error
 }
 
 // Response wraps the response protobuf (xds/LRS) and error that the Server
 // should send out to the client through a call to stream.Send()
 type Response struct {
-	Resp proto.Message
+	Resp protoiface.MessageV1
 	Err  error
 }
 

@@ -193,7 +193,6 @@ type PayloadConfig struct {
 	unknownFields protoimpl.UnknownFields
 
 	// Types that are assignable to Payload:
-	//
 	//	*PayloadConfig_BytebufParams
 	//	*PayloadConfig_SimpleParams
 	//	*PayloadConfig_ComplexParams

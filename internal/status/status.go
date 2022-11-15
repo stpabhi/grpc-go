@@ -31,10 +31,12 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/golang/protobuf/proto"
-	"github.com/golang/protobuf/ptypes"
 	spb "google.golang.org/genproto/googleapis/rpc/status"
 	"google.golang.org/grpc/codes"
+	"google.golang.org/protobuf/proto"
+	"google.golang.org/protobuf/protocompat"
+	"google.golang.org/protobuf/runtime/protoiface"
+	"google.golang.org/protobuf/types/known/anypb"
 )
 
 // Status represents an RPC status code, message, and details.  It is immutable
@@ -102,14 +104,15 @@ func (s *Status) Err() error {
 
 // WithDetails returns a new status with the provided details messages appended to the status.
 // If any errors are encountered, it returns nil and the first error encountered.
-func (s *Status) WithDetails(details ...proto.Message) (*Status, error) {
+func (s *Status) WithDetails(details ...protoiface.MessageV1) (*Status, error) {
 	if s.Code() == codes.OK {
 		return nil, errors.New("no error details for status with code OK")
 	}
 	// s.Code() != OK implies that s.Proto() != nil.
 	p := s.Proto()
 	for _, detail := range details {
-		any, err := ptypes.MarshalAny(detail)
+		// Convert v1 message to a v2 message.
+		any, err := anypb.New(protocompat.MessageV2(detail))
 		if err != nil {
 			return nil, err
 		}
@@ -126,12 +129,11 @@ func (s *Status) Details() []interface{} {
 	}
 	details := make([]interface{}, 0, len(s.s.Details))
 	for _, any := range s.s.Details {
-		detail := &ptypes.DynamicAny{}
-		if err := ptypes.UnmarshalAny(any, detail); err != nil {
+		if detail, err := any.UnmarshalNew(); err != nil {
 			details = append(details, err)
-			continue
+		} else {
+			details = append(details, detail)
 		}
-		details = append(details, detail.Message)
 	}
 	return details
 }

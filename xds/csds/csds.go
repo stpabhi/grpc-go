@@ -32,12 +32,13 @@ import (
 	v3corepb "github.com/envoyproxy/go-control-plane/envoy/config/core/v3"
 	v3statusgrpc "github.com/envoyproxy/go-control-plane/envoy/service/status/v3"
 	v3statuspb "github.com/envoyproxy/go-control-plane/envoy/service/status/v3"
-	"github.com/golang/protobuf/proto"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/grpclog"
 	"google.golang.org/grpc/status"
 	"google.golang.org/grpc/xds/internal/xdsclient"
 	"google.golang.org/grpc/xds/internal/xdsclient/xdsresource"
+	"google.golang.org/protobuf/proto"
+	"google.golang.org/protobuf/runtime/protoiface"
 	"google.golang.org/protobuf/types/known/timestamppb"
 
 	_ "google.golang.org/grpc/xds/internal/xdsclient/controller/version/v2" // Register v2 xds_client.
@@ -153,7 +154,7 @@ func (s *ClientStatusDiscoveryServer) Close() {
 // The default case (not v2 or v3) is nil, instead of error, because the
 // resources in the response are more important than the node. The worst case is
 // that the user will receive no Node info, but will still get resources.
-func nodeProtoToV3(n proto.Message) *v3corepb.Node {
+func nodeProtoToV3(n protoiface.MessageV1) *v3corepb.Node {
 	var node *v3corepb.Node
 	switch nn := n.(type) {
 	case *v3corepb.Node:

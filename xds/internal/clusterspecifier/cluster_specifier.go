@@ -21,7 +21,7 @@
 package clusterspecifier
 
 import (
-	"github.com/golang/protobuf/proto"
+	"google.golang.org/protobuf/runtime/protoiface"
 )
 
 // BalancerConfig is the Go Native JSON representation of a balancer
@@ -38,7 +38,7 @@ type ClusterSpecifier interface {
 	// proto.Message from the top level RDS configuration. The resulting
 	// BalancerConfig will be used as configuration for a child LB Policy of the
 	// Cluster Manager LB Policy. A nil BalancerConfig is invalid.
-	ParseClusterSpecifierConfig(proto.Message) (BalancerConfig, error)
+	ParseClusterSpecifierConfig(protoiface.MessageV1) (BalancerConfig, error)
 }
 
 var (
